@@ -41,7 +41,7 @@ export default function VideoPlayer() {
     const interval = setInterval(() => {
       fetchAd();
       randomizePosition();
-    }, 1000);
+    }, 10000);
     return () => clearInterval(interval);
   }, []);
 
