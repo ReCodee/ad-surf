@@ -1,17 +1,95 @@
-import React from "react";
+import { useEffect, useState, useRef } from "react";
+import axios from "axios";
 import "./VideoPlayer.css";
 
-function VideoPlayer() {
+export default function VideoPlayer() {
+  const [ad, setAd] = useState(null);
+  const [position, setPosition] = useState({
+    top: "10%",
+    left: "10%",
+    bottom: "30%",
+    right: "10%",
+  });
+  const videoRef = useRef(null);
+  const adContainerRef = useRef(null);
+
+  const toggleFullScreen = async () => {
+    const container = document.querySelector(".video-container");
+    if (!document.fullscreenElement) {
+      try {
+        if (container.requestFullscreen) {
+          await container.requestFullscreen();
+        } else if (container.webkitRequestFullScreen) {
+          await container.webkitRequestFullScreen();
+        } else if (container.mozRequestFullScreen) {
+          await container.mozRequestFullScreen();
+        } else if (container.msRequestFullscreen) {
+          await container.msRequestFullscreen();
+        }
+      } catch (err) {
+        console.error("Failed to enter fullscreen:", err);
+      }
+    } else {
+      if (document.exitFullscreen) {
+        await document.exitFullscreen();
+      }
+    }
+  };
+
+  useEffect(() => {
+    fetchAd();
+    const interval = setInterval(() => {
+      fetchAd();
+      randomizePosition();
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const fetchAd = async () => {
+    const { data } = await axios.get("http://localhost:8080/ads");
+    setAd(data[Math.floor(Math.random() * data.length)]);
+  };
+
+  const randomizePosition = () => {
+    const videoRect = videoRef.current.getBoundingClientRect();
+    setPosition({
+      top: `${Math.random() * 70 + 10}%`,
+      left: `${Math.random() * 70 + 10}%`,
+      bottom: `${Math.random() * 30 + 10}%`,
+      right: `${Math.random() * 70 + 30}%`,
+    });
+  };
+
+  const handleAdClick = async () => {
+    await axios.post("http://localhost:8080/ads/click", {
+      adId: ad.id,
+      timestamp: new Date().toISOString(),
+      videoTime: videoRef.current.currentTime,
+    });
+    window.open(ad.url, "_blank");
+  };
+
   return (
     <div className="video-container">
-      <video id="video" className="video" controls autoPlay>
+      <video ref={videoRef} id="video" className="video" controls autoPlay>
         <source
           src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
           type="video/mp4"
-        ></source>
+        />
       </video>
+      {ad && (
+        <div
+          ref={adContainerRef}
+          className="ad-container"
+          style={{ ...position }}
+          onClick={handleAdClick}
+        >
+          <img src={ad.image} alt="Ad" className="ad-image" />
+        </div>
+      )}
+      <button className="fullscreen-toggle-btn" onClick={toggleFullScreen}>
+        [ ]
+      </button>
     </div>
   );
 }
-
-export default VideoPlayer;
