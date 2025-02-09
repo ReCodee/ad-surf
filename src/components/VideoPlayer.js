@@ -46,7 +46,7 @@ export default function VideoPlayer() {
   }, []);
 
   const fetchAd = async () => {
-    const { data } = await axios.get("http://localhost:8080/ads");
+    const { data } = await axios.get(`${process.env.REACT_APP_AD_STREAM_URL}/ads`);
     setAd(data[Math.floor(Math.random() * data.length)]);
   };
 
@@ -61,7 +61,7 @@ export default function VideoPlayer() {
   };
 
   const handleAdClick = async () => {
-    await axios.post("http://localhost:8080/ads/click", {
+    await axios.post(`${process.env.REACT_APP_AD_STREAM_URL}/ads/click`, {
       adId: ad.id,
       timestamp: new Date().toISOString(),
       videoTime: videoRef.current.currentTime,
