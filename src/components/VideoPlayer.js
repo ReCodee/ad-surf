@@ -88,7 +88,7 @@ export default function VideoPlayer() {
         </div>
       )}
       <button className="fullscreen-toggle-btn" onClick={toggleFullScreen}>
-        [ ]
+        ⛶
       </button>
     </div>
   );
