@@ -13,6 +13,7 @@ export default function VideoPlayer() {
   const [adHoverStart, setAdHoverStart] = useState(0);
   const videoRef = useRef(null);
   const adContainerRef = useRef(null);
+  const wsRef = useRef(null);
 
   const toggleFullScreen = async () => {
     const container = document.querySelector(".video-container");
@@ -38,25 +39,36 @@ export default function VideoPlayer() {
   };
 
   useEffect(() => {
-    fetchAd();
-    const interval = setInterval(() => {
-      fetchAd();
-      randomizePosition();
-    }, 10000);
-    return () => clearInterval(interval);
-  }, []);
+    wsRef.current = new WebSocket(`${process.env.REACT_APP_AD_STREAM_URL}/ws/ads`);
 
-  const fetchAd = async () => {
-    const { data } = await axios.get(`${process.env.REACT_APP_AD_STREAM_URL}/ads`);
-    setAd(data[Math.floor(Math.random() * data.length)]);
-  };
+    wsRef.current.onmessage = (event) => {
+      const ad = JSON.parse(event.data);
+      console.log(ad);
+      setAd(ad);
+      randomizePosition();
+    };
+
+    wsRef.current.onclose = () => {
+      setTimeout(() => {
+        wsRef.current = new WebSocket(`${process.env.REACT_APP_AD_STREAM_URL}/ws/ads`);
+      }, 1000);
+    };
+
+    // const interval = setInterval(() => {
+    //   if (wsRef.current.readyState === WebSocket.OPEN) {
+    //     wsRef.current.send('fetch');
+    //   }
+    //   randomizePosition();
+    // }, 10000);
+
+  }, []);
 
   const randomizePosition = () => {
     setPosition({
-      top: `${Math.random() * 70 + 10}%`,
-      left: `${Math.random() * 70 + 10}%`,
-      bottom: `${Math.random() * 30 + 10}%`,
-      right: `${Math.random() * 70 + 30}%`,
+      top: `${Math.random() * 50 + 10}%`,   
+      left: `${Math.random() * 50 + 10}%`,  
+      bottom: `${Math.random() * 20 + 20}%`,
+      right: `${Math.random() * 50 + 20}%`,
     });
   };
 
