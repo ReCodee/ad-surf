@@ -34,6 +34,7 @@
   max-width: 20%;
   max-height: 20%;
   display: block;
+  transition: all 0.3s ease-in-out;
 }
 
 .fullscreen-toggle-btn {
