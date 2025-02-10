@@ -10,6 +10,7 @@ export default function VideoPlayer() {
     bottom: "30%",
     right: "10%",
   });
+  const [adHoverStart, setAdHoverStart] = useState(0);
   const videoRef = useRef(null);
   const adContainerRef = useRef(null);
 
@@ -51,7 +52,6 @@ export default function VideoPlayer() {
   };
 
   const randomizePosition = () => {
-    const videoRect = videoRef.current.getBoundingClientRect();
     setPosition({
       top: `${Math.random() * 70 + 10}%`,
       left: `${Math.random() * 70 + 10}%`,
@@ -61,10 +61,21 @@ export default function VideoPlayer() {
   };
 
   const handleAdClick = async () => {
+    const adRect = adContainerRef.current.getBoundingClientRect();
+    const videoRect = videoRef.current.getBoundingClientRect();
+    const relativeX = adRect.left - videoRect.left;
+    const relativeY = adRect.top - videoRect.top;
+
     await axios.post(`${process.env.REACT_APP_AD_STREAM_URL}/ads/click`, {
       adId: ad.id,
       timestamp: new Date().toISOString(),
       videoTime: videoRef.current.currentTime,
+      hoverTime: (new Date().getTime() - adHoverStart) / 1000,
+      position: {
+        x: Math.round(relativeX),
+        y: Math.round(relativeY),
+      }
+
     });
     window.open(ad.url, "_blank");
   };
@@ -83,9 +94,11 @@ export default function VideoPlayer() {
           className="ad-container"
           style={{ ...position }}
           onClick={handleAdClick}
+          onMouseEnter={() => setAdHoverStart(new Date().getTime())}
         >
           <img src={ad.image} alt="Ad" className="ad-image" />
         </div>
+
       )}
       <button className="fullscreen-toggle-btn" onClick={toggleFullScreen}>
         ⛶

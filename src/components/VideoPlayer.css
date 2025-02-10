@@ -45,10 +45,11 @@
   cursor: pointer;
   background-color: transparent;
   border: none;
+  color: white;
   font-size: 2rem;
 }
 
 .fullscreen-toggle-btn:hover {
-  background-color: #f0f0f0;
+  color: #000;
 }
 
