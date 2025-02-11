@@ -38,8 +38,8 @@
 
 # Production Build with Docker
 
-1. Build the Docker image ```bash docker build -t ad-overlay-system .```
-2. Run the Docker container ```bash docker run --network ad-service-network -p 3000:3000 ad-overlay-system ```
+1. Build the Docker image ```docker build -t ad-overlay-system .```
+2. Run the Docker container ```docker run --network ad-service-network -p 3000:3000 ad-overlay-system ```
 
 
 # System Architecture
